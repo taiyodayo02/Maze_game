@@ -669,18 +669,30 @@
             if (playerImage) {
                 // 画像がある場合は画像を表示
                 const img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, player.x * cellSize, player.y * cellSize, cellSize, cellSize);
+                };
+                img.onerror = function() {
+                    console.log('プレイヤー画像の読み込みに失敗:', playerImage);
+                    // エラー時はデフォルト表示
+                    drawDefaultPlayer();
+                };
                 img.src = playerImage;
-                ctx.drawImage(img, player.x * cellSize, player.y * cellSize, cellSize, cellSize);
             } else {
                 // 画像がない場合はデフォルト表示
-                ctx.fillStyle = '#74b9ff';
-                ctx.fillRect(player.x * cellSize + 3, player.y * cellSize + 3, cellSize - 6, cellSize - 6);
-                
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '12px monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText('😊', player.x * cellSize + cellSize/2, player.y * cellSize + cellSize/2 + 4);
+                drawDefaultPlayer();
             }
+        }
+        
+        function drawDefaultPlayer() {
+            const cellSize = 20;
+            ctx.fillStyle = '#74b9ff';
+            ctx.fillRect(player.x * cellSize + 3, player.y * cellSize + 3, cellSize - 6, cellSize - 6);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '12px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('😊', player.x * cellSize + cellSize/2, player.y * cellSize + cellSize/2 + 4);
         }
 
         function movePlayer(dx, dy) {
@@ -932,7 +944,33 @@
 
         // 画像を設定する例（実際の画像ファイルがある場合）
         setItemImage('treasure', 'images/items/treasure_red_gold.png');
-        // setCharacterImage('たいよう', 'images/characters/taiyou.png');
+        setCharacterImage('たいよう', 'images/characters/taiyou.png'); // ←コメントアウトを解除
+        
+        // 画像読み込みテスト
+        function testImageLoad() {
+            const testImg = new Image();
+            testImg.onload = function() {
+                console.log('✅ 宝箱画像読み込み成功！', testImg.width + 'x' + testImg.height + 'ピクセル');
+            };
+            testImg.onerror = function() {
+                console.log('❌ 宝箱画像読み込み失敗:', 'images/items/treasure_red_gold.png');
+            };
+            testImg.src = 'images/items/treasure_red_gold.png';
+            
+            // たいよう画像テスト
+            const charImg = new Image();
+            charImg.onload = function() {
+                console.log('✅ たいよう画像読み込み成功！', charImg.width + 'x' + charImg.height + 'ピクセル');
+            };
+            charImg.onerror = function() {
+                console.log('❌ たいよう画像読み込み失敗:', 'images/characters/taiyou.png');
+            };
+            charImg.src = 'images/characters/taiyou.png';
+        }
+        
+        // テスト実行
+        testImageLoad();
+        
         // setCharacterImage('あきら', 'images/characters/akira.png');
         // setWeaponImage('sword', 'images/weapons/sword.png');
         // setEnemyImage('ghost', 'images/enemies/ghost.png');
