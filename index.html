@@ -599,22 +599,34 @@
                     if (gameImages.items.treasure) {
                         // 画像がある場合は画像を表示
                         const img = new Image();
+                        img.onload = function() {
+                            ctx.drawImage(img, treasure.x * cellSize, treasure.y * cellSize, cellSize, cellSize);
+                        };
+                        img.onerror = function() {
+                            console.log('宝箱画像の読み込みに失敗:', gameImages.items.treasure);
+                            // エラー時はデフォルト表示
+                            drawDefaultTreasure(treasure.x, treasure.y, cellSize);
+                        };
                         img.src = gameImages.items.treasure;
-                        ctx.drawImage(img, treasure.x * cellSize, treasure.y * cellSize, cellSize, cellSize);
                     } else {
                         // 画像がない場合はデフォルト表示
-                        ctx.fillStyle = '#fdcb6e';
-                        ctx.fillRect(treasure.x * cellSize + 2, treasure.y * cellSize + 2, cellSize - 4, cellSize - 4);
-                        ctx.fillStyle = '#e17055';
-                        ctx.fillRect(treasure.x * cellSize + 4, treasure.y * cellSize + 4, cellSize - 8, cellSize - 8);
-                        
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = '12px monospace';
-                        ctx.textAlign = 'center';
-                        ctx.fillText('💰', treasure.x * cellSize + cellSize/2, treasure.y * cellSize + cellSize/2 + 4);
+                        drawDefaultTreasure(treasure.x, treasure.y, cellSize);
                     }
                 }
             });
+            
+        }
+        
+        function drawDefaultTreasure(x, y, cellSize) {
+            ctx.fillStyle = '#fdcb6e';
+            ctx.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
+            ctx.fillStyle = '#e17055';
+            ctx.fillRect(x * cellSize + 4, y * cellSize + 4, cellSize - 8, cellSize - 8);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '12px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('💰', x * cellSize + cellSize/2, y * cellSize + cellSize/2 + 4);
 
             // 動く敵を描画
             movingEnemies.forEach(enemy => {
