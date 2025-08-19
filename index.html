@@ -88,12 +88,43 @@
             background: linear-gradient(45deg, #00d2d3, #54a0ff);
             box-shadow: 0 4px 0 #2f3542;
             font-size: 8px;
-            padding: 10px 5px;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 80px;
         }
-        
+
         .character-button.selected {
             background: linear-gradient(45deg, #ffa502, #ff6348);
             box-shadow: 0 4px 0 #ff4757;
+        }
+
+        .character-image {
+            width: 40px;
+            height: 40px;
+            background: #ffffff;
+            border: 2px solid #2f3542;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            image-rendering: pixelated;
+        }
+
+        .character-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        .character-name {
+            font-size: 7px;
+            text-align: center;
+            line-height: 1.2;
         }
         
         .difficulty-select {
@@ -351,14 +382,14 @@
             selectedDifficulty: 'easy',
             unlockedCharacters: ['たいよう'],
             clearedStages: [],
-            weaponCount: 0, // 武器の数
+            weaponCount: 0,
             treasureCount: 0
         };
 
-        // 画像データ（後で実際の画像ファイルに変更可能）
+        // 画像データ
         const gameImages = {
             characters: {
-                'たいよう': null, // 画像ファイルのパスを後で設定
+                'たいよう': null,
                 'あきら': null,
                 'あるま': null,
                 'いおり': null,
@@ -388,7 +419,7 @@
         // 読み込み済み画像を保存するオブジェクト
         const loadedImages = {};
 
-        // 画像を設定する関数（後で使用）
+        // 画像設定関数
         function setCharacterImage(characterName, imagePath) {
             gameImages.characters[characterName] = imagePath;
             const imgElement = document.getElementById(`char-img-${characterName}`);
@@ -396,7 +427,6 @@
                 imgElement.innerHTML = `<img src="${imagePath}" alt="${characterName}">`;
             }
             
-            // プレイ画面用に画像を事前読み込み
             if (!loadedImages[imagePath]) {
                 const img = new Image();
                 img.onload = function() {
@@ -417,7 +447,6 @@
         function setEnemyImage(enemyType, imagePath) {
             gameImages.enemies[enemyType] = imagePath;
             
-            // 敵画像も事前読み込み
             if (!loadedImages[imagePath]) {
                 const img = new Image();
                 img.onload = function() {
@@ -434,7 +463,6 @@
         function setItemImage(itemType, imagePath) {
             gameImages.items[itemType] = imagePath;
             
-            // アイテム画像も事前読み込み
             if (!loadedImages[imagePath]) {
                 const img = new Image();
                 img.onload = function() {
@@ -448,7 +476,7 @@
             }
         }
 
-        // ローカルストレージから保存データを読み込み
+        // ローカルストレージ
         function loadGameData() {
             const saved = localStorage.getItem('mazeGameSave');
             if (saved) {
@@ -456,7 +484,6 @@
             }
         }
 
-        // ゲームデータを保存
         function saveGameData() {
             localStorage.setItem('mazeGameSave', JSON.stringify(gameState));
         }
@@ -522,17 +549,13 @@
         const ctx = canvas.getContext('2d');
 
         let player = { x: 1, y: 1 };
-        let friend = { x: 18, y: 18 }; // ゴールで待っている友達
-        let treasures = []; // 複数の宝箱
-        let movingEnemies = [
-            { x: 7, y: 7, dx: 1, dy: 0 },
-            { x: 15, y: 10, dx: 0, dy: 1 },
-            { x: 5, y: 15, dx: -1, dy: 0 }
-        ];
+        let friend = { x: 18, y: 18 };
+        let treasures = [];
+        let movingEnemies = [];
         let gameRunning = false;
         let lastEnemyMove = 0;
 
-        // 迷路データ（1=壁、0=道）
+        // 迷路データ
         const maze = [
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [1,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
@@ -560,7 +583,7 @@
             player = { x: 1, y: 1 };
             friend = { x: 18, y: 18 };
             
-            // 難易度によって敵の数と配置を変更
+            // 難易度による敵の数
             let enemyCount;
             switch(gameState.selectedDifficulty) {
                 case 'easy': enemyCount = 3; break;
@@ -570,7 +593,7 @@
                 default: enemyCount = 3;
             }
             
-            // 敵をランダムな位置に配置（プレイヤーとゴールを避ける）
+            // 敵の配置
             movingEnemies = [];
             const enemyPositions = [
                 { x: 7, y: 7, dx: 1, dy: 0 },
@@ -587,7 +610,7 @@
                 movingEnemies.push({ ...enemyPositions[i] });
             }
             
-            // 敵の数だけ宝箱を配置
+            // 宝箱の配置
             treasures = [];
             const treasurePositions = [
                 { x: 10, y: 5, collected: false },
@@ -613,7 +636,6 @@
             updateInventory();
             drawGame();
             
-            // 敵の移動を開始
             moveEnemies();
         }
 
@@ -640,27 +662,12 @@
                 if (!treasure.collected) {
                     const treasureImagePath = gameImages.items.treasure;
                     if (treasureImagePath && loadedImages[treasureImagePath]) {
-                        // 読み込み済み画像を使用
                         ctx.drawImage(loadedImages[treasureImagePath], treasure.x * cellSize, treasure.y * cellSize, cellSize, cellSize);
                     } else {
-                        // 画像がない場合はデフォルト表示
                         drawDefaultTreasure(treasure.x, treasure.y, cellSize);
                     }
                 }
             });
-            
-        }
-        
-        function drawDefaultTreasure(x, y, cellSize) {
-            ctx.fillStyle = '#fdcb6e';
-            ctx.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
-            ctx.fillStyle = '#e17055';
-            ctx.fillRect(x * cellSize + 4, y * cellSize + 4, cellSize - 8, cellSize - 8);
-            
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '12px monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText('💰', x * cellSize + cellSize/2, y * cellSize + cellSize/2 + 4);
 
             // 動く敵を描画
             movingEnemies.forEach((enemy, index) => {
@@ -673,18 +680,20 @@
                     ctx.drawImage(loadedImages[enemyImagePath], enemy.x * cellSize, enemy.y * cellSize, cellSize, cellSize);
                 } else {
                     console.log(`敵${index}をデフォルトで描画します`);
-                    // デフォルト表示のコード
+                    ctx.fillStyle = '#e84118';
+                    ctx.fillRect(enemy.x * cellSize + 2, enemy.y * cellSize + 2, cellSize - 4, cellSize - 4);
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '12px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('👻', enemy.x * cellSize + cellSize/2, enemy.y * cellSize + cellSize/2 + 4);
                 }
             });
 
             // 友達を描画（ゴール地点）
-            if (gameImages.items.friend) {
-                // 画像がある場合は画像を表示
-                const img = new Image();
-                img.src = gameImages.items.friend;
-                ctx.drawImage(img, friend.x * cellSize, friend.y * cellSize, cellSize, cellSize);
+            if (gameImages.items.friend && loadedImages[gameImages.items.friend]) {
+                ctx.drawImage(loadedImages[gameImages.items.friend], friend.x * cellSize, friend.y * cellSize, cellSize, cellSize);
             } else {
-                // 画像がない場合はデフォルト表示
                 ctx.fillStyle = '#00b894';
                 ctx.fillRect(friend.x * cellSize + 2, friend.y * cellSize + 2, cellSize - 4, cellSize - 4);
                 
@@ -706,6 +715,19 @@
                 console.log('デフォルトで描画します');
                 drawDefaultPlayer();
             }
+        }
+        
+        function drawDefaultTreasure(x, y, cellSize) {
+            ctx.fillStyle = '#fdcb6e';
+            ctx.fillRect(x * cellSize + 2, y * cellSize + 2, cellSize - 4, cellSize - 4);
+            ctx.fillStyle = '#e17055';
+            ctx.fillRect(x * cellSize + 4, y * cellSize + 4, cellSize - 8, cellSize - 8);
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '12px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('💰', x * cellSize + cellSize/2, y * cellSize + cellSize/2 + 4);
+        }
         
         function drawDefaultPlayer() {
             const cellSize = 20;
@@ -724,7 +746,6 @@
             const newX = player.x + dx;
             const newY = player.y + dy;
 
-            // 壁との衝突判定
             if (maze[newY] && maze[newY][newX] !== 1) {
                 player.x = newX;
                 player.y = newY;
@@ -737,7 +758,6 @@
                         gameState.treasureCount++;
                         updateInventory();
                         
-                        // 武器の種類をランダムに決定
                         const weapons = ['🗡️ 剣', '🏹 弓', '🔥 ファイアボール'];
                         const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
                         
@@ -750,18 +770,16 @@
                     const enemy = movingEnemies[i];
                     if (player.x === enemy.x && player.y === enemy.y) {
                         if (gameState.weaponCount > 0) {
-                            // 敵を倒す
                             movingEnemies.splice(i, 1);
-                            gameState.weaponCount--; // 武器を1つ消費
+                            gameState.weaponCount--;
                             updateInventory();
                             showPopup('⚔️ 敵を倒した！', `敵をやっつけた！<br>武器が1つ減ったよ<br>残り武器：${gameState.weaponCount}個`);
                         } else {
-                            // ゲームオーバー
                             gameRunning = false;
                             showPopup('💀 ゲームオーバー！', '武器がないと敵にやられちゃった！<br>次はもっと気をつけよう！', () => {
                                 showGameOver();
                             });
-                            return; // 移動処理を中断
+                            return;
                         }
                         break;
                     }
@@ -771,7 +789,6 @@
                 if (player.x === friend.x && player.y === friend.y) {
                     gameRunning = false;
                     
-                    // 新しい友達をアンロック
                     const newFriend = getRandomCharacter();
                     if (!gameState.unlockedCharacters.includes(newFriend)) {
                         gameState.unlockedCharacters.push(newFriend);
@@ -803,13 +820,12 @@
         function moveEnemies() {
             if (!gameRunning) return;
             
-            // 難易度による敵の速度設定（もっと速く！）
             let enemySpeed;
             switch(gameState.selectedDifficulty) {
-                case 'easy': enemySpeed = 800; break;     // かんたん：0.8秒
-                case 'normal': enemySpeed = 500; break;   // ふつう：0.5秒
-                case 'hard': enemySpeed = 300; break;     // むずかしい：0.3秒
-                case 'extreme': enemySpeed = 150; break;  // ヤバイ：0.15秒（超速！）
+                case 'easy': enemySpeed = 800; break;
+                case 'normal': enemySpeed = 500; break;
+                case 'hard': enemySpeed = 300; break;
+                case 'extreme': enemySpeed = 150; break;
                 default: enemySpeed = 500;
             }
             
@@ -819,14 +835,12 @@
                     const newX = enemy.x + enemy.dx;
                     const newY = enemy.y + enemy.dy;
                     
-                    // 壁や迷路の端に当たったら方向転換
                     if (!maze[newY] || maze[newY][newX] === 1 || newX < 0 || newX >= 20 || newY < 0 || newY >= 20) {
-                        // ランダムに新しい方向を決める（より予測しにくく）
                         const directions = [
-                            { dx: 1, dy: 0 },   // 右
-                            { dx: -1, dy: 0 },  // 左
-                            { dx: 0, dy: 1 },   // 下
-                            { dx: 0, dy: -1 }   // 上
+                            { dx: 1, dy: 0 },
+                            { dx: -1, dy: 0 },
+                            { dx: 0, dy: 1 },
+                            { dx: 0, dy: -1 }
                         ];
                         const randomDirection = directions[Math.floor(Math.random() * directions.length)];
                         enemy.dx = randomDirection.dx;
@@ -852,15 +866,12 @@
             document.getElementById('popup-message').innerHTML = message;
             document.getElementById('popup').classList.add('show');
             
-            // コールバック関数を保存
             window.popupCallback = callback;
         }
 
-        // ポップアップを閉じる
         function closePopup() {
             document.getElementById('popup').classList.remove('show');
             
-            // コールバック関数があれば実行
             if (window.popupCallback) {
                 setTimeout(window.popupCallback, 100);
                 window.popupCallback = null;
@@ -937,7 +948,6 @@
             const dx = touchEndX - touchStartX;
             const dy = touchEndY - touchStartY;
 
-            // スワイプ方向を判定
             if (Math.abs(dx) > Math.abs(dy)) {
                 movePlayer(dx > 0 ? 1 : -1, 0);
             } else {
@@ -965,40 +975,10 @@
         // 初期化
         updateCharacterButtons();
 
-        // 画像を設定する例（実際の画像ファイルがある場合）
+        // 画像を設定
         setItemImage('treasure', 'images/items/treasure_red_gold.png');
-        setCharacterImage('たいよう', 'images/characters/taiyou.png'); // ←コメントアウトを解除
-        setEnemyImage('zombie', 'images/enemies/character_monster_zombie_02_green.png'); // ←ゾンビ画像追加
-        
-        // 画像読み込みテスト
-        function testImageLoad() {
-            const testImg = new Image();
-            testImg.onload = function() {
-                console.log('✅ 宝箱画像読み込み成功！', testImg.width + 'x' + testImg.height + 'ピクセル');
-            };
-            testImg.onerror = function() {
-                console.log('❌ 宝箱画像読み込み失敗:', 'images/items/treasure_red_gold.png');
-            };
-            testImg.src = 'images/items/treasure_red_gold.png';
-            
-            // たいよう画像テスト
-            const charImg = new Image();
-            charImg.onload = function() {
-                console.log('✅ たいよう画像読み込み成功！', charImg.width + 'x' + charImg.height + 'ピクセル');
-            };
-            charImg.onerror = function() {
-                console.log('❌ たいよう画像読み込み失敗:', 'images/characters/taiyou.png');
-            };
-            charImg.src = 'images/characters/taiyou.png';
-        }
-        
-        // テスト実行
-        testImageLoad();
-        
-        // setCharacterImage('あきら', 'images/characters/akira.png');
-        // setWeaponImage('sword', 'images/weapons/sword.png');
-        // setEnemyImage('ghost', 'images/enemies/ghost.png');
-        // setItemImage('friend', 'images/items/friend.png');
+        setCharacterImage('たいよう', 'images/characters/taiyou.png');
+        setEnemyImage('zombie', 'images/enemies/character_monster_zombie_02_green.png');
     </script>
 </body>
 </html>
