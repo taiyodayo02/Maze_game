@@ -663,20 +663,17 @@
             ctx.fillText('💰', x * cellSize + cellSize/2, y * cellSize + cellSize/2 + 4);
 
             // 動く敵を描画
-            movingEnemies.forEach(enemy => {
+            movingEnemies.forEach((enemy, index) => {
                 const enemyImagePath = gameImages.enemies.zombie;
+                console.log(`敵${index}描画中:`, enemyImagePath);
+                console.log(`敵${index}読み込み済み画像:`, loadedImages[enemyImagePath] ? 'あり' : 'なし');
+                
                 if (enemyImagePath && loadedImages[enemyImagePath]) {
-                    // 読み込み済み画像を使用
+                    console.log(`敵${index}を画像で描画します`);
                     ctx.drawImage(loadedImages[enemyImagePath], enemy.x * cellSize, enemy.y * cellSize, cellSize, cellSize);
                 } else {
-                    // 画像がない場合はデフォルト表示
-                    ctx.fillStyle = '#e84118';
-                    ctx.fillRect(enemy.x * cellSize + 2, enemy.y * cellSize + 2, cellSize - 4, cellSize - 4);
-                    
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = '12px monospace';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('👻', enemy.x * cellSize + cellSize/2, enemy.y * cellSize + cellSize/2 + 4);
+                    console.log(`敵${index}をデフォルトで描画します`);
+                    // デフォルト表示のコード
                 }
             });
 
@@ -703,15 +700,12 @@
             console.log('読み込み済み画像:', loadedImages[playerImagePath] ? 'あり' : 'なし');
             
             if (playerImagePath && loadedImages[playerImagePath]) {
-                // 読み込み済み画像を使用
                 console.log('画像で描画します');
                 ctx.drawImage(loadedImages[playerImagePath], player.x * cellSize, player.y * cellSize, cellSize, cellSize);
             } else {
-                // 画像がない場合はデフォルト表示
                 console.log('デフォルトで描画します');
                 drawDefaultPlayer();
             }
-        }
         
         function drawDefaultPlayer() {
             const cellSize = 20;
