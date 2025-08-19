@@ -687,11 +687,16 @@
 
             // プレイヤーを描画
             const playerImagePath = gameImages.characters[gameState.selectedCharacter];
+            console.log('プレイヤー描画中:', gameState.selectedCharacter, playerImagePath);
+            console.log('読み込み済み画像:', loadedImages[playerImagePath] ? 'あり' : 'なし');
+            
             if (playerImagePath && loadedImages[playerImagePath]) {
                 // 読み込み済み画像を使用
+                console.log('画像で描画します');
                 ctx.drawImage(loadedImages[playerImagePath], player.x * cellSize, player.y * cellSize, cellSize, cellSize);
             } else {
                 // 画像がない場合はデフォルト表示
+                console.log('デフォルトで描画します');
                 drawDefaultPlayer();
             }
         }
