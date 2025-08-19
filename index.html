@@ -385,12 +385,28 @@
             }
         };
 
+        // 読み込み済み画像を保存するオブジェクト
+        const loadedImages = {};
+
         // 画像を設定する関数（後で使用）
         function setCharacterImage(characterName, imagePath) {
             gameImages.characters[characterName] = imagePath;
             const imgElement = document.getElementById(`char-img-${characterName}`);
             if (imgElement && imagePath) {
                 imgElement.innerHTML = `<img src="${imagePath}" alt="${characterName}">`;
+            }
+            
+            // プレイ画面用に画像を事前読み込み
+            if (!loadedImages[imagePath]) {
+                const img = new Image();
+                img.onload = function() {
+                    loadedImages[imagePath] = img;
+                    console.log('✅ キャラクター画像読み込み完了:', characterName);
+                };
+                img.onerror = function() {
+                    console.log('❌ キャラクター画像読み込み失敗:', imagePath);
+                };
+                img.src = imagePath;
             }
         }
 
@@ -404,6 +420,19 @@
 
         function setItemImage(itemType, imagePath) {
             gameImages.items[itemType] = imagePath;
+            
+            // アイテム画像も事前読み込み
+            if (!loadedImages[imagePath]) {
+                const img = new Image();
+                img.onload = function() {
+                    loadedImages[imagePath] = img;
+                    console.log('✅ アイテム画像読み込み完了:', itemType);
+                };
+                img.onerror = function() {
+                    console.log('❌ アイテム画像読み込み失敗:', imagePath);
+                };
+                img.src = imagePath;
+            }
         }
 
         // ローカルストレージから保存データを読み込み
@@ -596,18 +625,10 @@
             // 宝箱を描画
             treasures.forEach(treasure => {
                 if (!treasure.collected) {
-                    if (gameImages.items.treasure) {
-                        // 画像がある場合は画像を表示
-                        const img = new Image();
-                        img.onload = function() {
-                            ctx.drawImage(img, treasure.x * cellSize, treasure.y * cellSize, cellSize, cellSize);
-                        };
-                        img.onerror = function() {
-                            console.log('宝箱画像の読み込みに失敗:', gameImages.items.treasure);
-                            // エラー時はデフォルト表示
-                            drawDefaultTreasure(treasure.x, treasure.y, cellSize);
-                        };
-                        img.src = gameImages.items.treasure;
+                    const treasureImagePath = gameImages.items.treasure;
+                    if (treasureImagePath && loadedImages[treasureImagePath]) {
+                        // 読み込み済み画像を使用
+                        ctx.drawImage(loadedImages[treasureImagePath], treasure.x * cellSize, treasure.y * cellSize, cellSize, cellSize);
                     } else {
                         // 画像がない場合はデフォルト表示
                         drawDefaultTreasure(treasure.x, treasure.y, cellSize);
@@ -665,19 +686,10 @@
             }
 
             // プレイヤーを描画
-            const playerImage = gameImages.characters[gameState.selectedCharacter];
-            if (playerImage) {
-                // 画像がある場合は画像を表示
-                const img = new Image();
-                img.onload = function() {
-                    ctx.drawImage(img, player.x * cellSize, player.y * cellSize, cellSize, cellSize);
-                };
-                img.onerror = function() {
-                    console.log('プレイヤー画像の読み込みに失敗:', playerImage);
-                    // エラー時はデフォルト表示
-                    drawDefaultPlayer();
-                };
-                img.src = playerImage;
+            const playerImagePath = gameImages.characters[gameState.selectedCharacter];
+            if (playerImagePath && loadedImages[playerImagePath]) {
+                // 読み込み済み画像を使用
+                ctx.drawImage(loadedImages[playerImagePath], player.x * cellSize, player.y * cellSize, cellSize, cellSize);
             } else {
                 // 画像がない場合はデフォルト表示
                 drawDefaultPlayer();
