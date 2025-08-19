@@ -416,6 +416,19 @@
 
         function setEnemyImage(enemyType, imagePath) {
             gameImages.enemies[enemyType] = imagePath;
+            
+            // 敵画像も事前読み込み
+            if (!loadedImages[imagePath]) {
+                const img = new Image();
+                img.onload = function() {
+                    loadedImages[imagePath] = img;
+                    console.log('✅ 敵画像読み込み完了:', enemyType);
+                };
+                img.onerror = function() {
+                    console.log('❌ 敵画像読み込み失敗:', imagePath);
+                };
+                img.src = imagePath;
+            }
         }
 
         function setItemImage(itemType, imagePath) {
@@ -651,11 +664,10 @@
 
             // 動く敵を描画
             movingEnemies.forEach(enemy => {
-                if (gameImages.enemies.ghost) {
-                    // 画像がある場合は画像を表示
-                    const img = new Image();
-                    img.src = gameImages.enemies.ghost;
-                    ctx.drawImage(img, enemy.x * cellSize, enemy.y * cellSize, cellSize, cellSize);
+                const enemyImagePath = gameImages.enemies.zombie;
+                if (enemyImagePath && loadedImages[enemyImagePath]) {
+                    // 読み込み済み画像を使用
+                    ctx.drawImage(loadedImages[enemyImagePath], enemy.x * cellSize, enemy.y * cellSize, cellSize, cellSize);
                 } else {
                     // 画像がない場合はデフォルト表示
                     ctx.fillStyle = '#e84118';
@@ -962,6 +974,7 @@
         // 画像を設定する例（実際の画像ファイルがある場合）
         setItemImage('treasure', 'images/items/treasure_red_gold.png');
         setCharacterImage('たいよう', 'images/characters/taiyou.png'); // ←コメントアウトを解除
+        setEnemyImage('zombie', 'images/enemies/character_monster_zombie_02_green.png'); // ←ゾンビ画像追加
         
         // 画像読み込みテスト
         function testImageLoad() {
