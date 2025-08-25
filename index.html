@@ -194,6 +194,41 @@
         .difficulty-button.selected {
             background: linear-gradient(45deg, #00d2d3, #54a0ff);
         }
+
+		/* ヤバすぎヤバおボタン専用の虹色アニメーション */
+button[data-difficulty="extreme"] {
+    background: linear-gradient(-45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3) !important;
+    background-size: 400% 400% !important;
+    animation: rainbow-move 3s ease infinite !important;
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+    font-weight: bold !important;
+    border: 2px solid #ffffff !important;
+}
+
+button[data-difficulty="extreme"]:hover {
+    animation-duration: 1.5s !important;
+    transform: translateY(2px) scale(1.05) !important;
+}
+
+button[data-difficulty="extreme"].selected {
+    background: linear-gradient(-45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3) !important;
+    background-size: 400% 400% !important;
+    animation: rainbow-move 2s ease infinite !important;
+    box-shadow: 0 0 20px rgba(255,255,255,0.5) !important;
+}
+
+@keyframes rainbow-move {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
         
         .game-canvas {
             border: 2px solid #00ff00;
@@ -330,6 +365,9 @@
     justify-content: center;
     align-items: center;
     background: #0f0f23;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .title-image-container {
@@ -339,6 +377,9 @@
     width: 100%;
     height: 100%;
     z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .title-image {
@@ -346,6 +387,11 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .title-start-button {
@@ -353,7 +399,7 @@
     z-index: 10;
     font-size: 14px;
     padding: 20px 35px;
-    background: linear-gradient(45deg, #00d2d3, #54a0ff);
+    background: linear-gradient(45deg, #00b894, #55efc4);
     box-shadow: 0 8px 0 #2f3542;
     border-radius: 8px;
     text-shadow: 1px 1px 0px #000000;
@@ -377,6 +423,7 @@
     .title-start-button {
         font-size: 12px;
         padding: 15px 25px;
+        background: linear-gradient(45deg, #00b894, #55efc4) !important;
     }
 }
 		
@@ -388,17 +435,33 @@
         
         /* スマホ専用スタイル */
         @media (max-width: 600px) {
-            body {
-                padding: 5px;
-                min-height: 100vh;
-                overflow-x: hidden;
-            }
-            
-            .game-container {
-                max-width: 100%;
-                padding: 10px;
-                border-width: 2px;
-            }
+    body {
+        padding: 5px;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+    
+    .game-container {
+        max-width: 100%;
+        padding: 10px;
+        border-width: 2px;
+        margin: 0;
+        width: calc(100% - 10px);
+        box-sizing: border-box;
+    }
+    
+    .character-select {
+        width: 100%;
+        max-width: calc(100vw - 40px);
+        overflow-x: auto;
+        box-sizing: border-box;
+    }
+    
+    .character-button {
+        min-width: 70px;
+        min-height: 90px;
+        flex-shrink: 0;
+    }
 
 			/* タイトル画面では枠を非表示 */
 .game-container:has(#title-screen.active) {
@@ -589,29 +652,31 @@
         // 画像データ
         const gameImages = {
             characters: {
-                'たいよう': null,
-                'あきら': null,
-                'あるま': null,
-                'いおり': null,
-                'しゅうご': null,
-                'まほ': null,
-                'しづき': null,
-                'あさひ': null,
-                'しゅん': null,
-                'あつこ': null
-            },
-            characterSelect: {
-                'たいよう': null,
-                'あきら': null,
-                'あるま': null,
-                'いおり': null,
-                'しゅうご': null,
-                'まほ': null,
-                'しづき': null,
-                'あさひ': null,
-                'しゅん': null,
-                'あつこ': null
-            },
+    'たいよう': null,
+    'あきら': null,
+    'あるま': null,
+    'いおり': null,
+    'しゅうご': null,
+    'まほ': null,
+    'しづき': null,
+    'あさひ': null,
+    'しゅん': null,
+    'あつこ': null,
+    'ぺんぎん': null
+},
+characterSelect: {
+    'たいよう': null,
+    'あきら': null,
+    'あるま': null,
+    'いおり': null,
+    'しゅうご': null,
+    'まほ': null,
+    'しづき': null,
+    'あさひ': null,
+    'しゅん': null,
+    'あつこ': null,
+    'ぺんぎん': null
+},
             weapons: {
                 sword: null,
                 bow: null,
@@ -1384,8 +1449,8 @@
         }
 	// 全キャラクターリスト
         const allCharacters = ['たいよう', 'あきら', 'あるま', 'いおり', 'しゅうご', 
-                               'まほ', 'しづき', 'あさひ', 'しゅん', 'あつこ', 'りき', 'だいち'];
-
+                       'まほ', 'しづき', 'あさひ', 'しゅん', 'あつこ', 'ぺんぎん', 'だいち'];
+		
         // キャラクター表示用エモジ
         const characterEmojis = {
             'たいよう': '☀️',
@@ -1398,7 +1463,7 @@
             'あさひ': '🌅',
             'しゅん': '🎋',
             'あつこ': '🌻',
-            'りき': '💪',
+            'ぺんぎん': '🐧',
             'だいち': '🌍'
         };
 
@@ -1451,7 +1516,7 @@
         }
 function getRandomCharacter() {
             const allCharacters = ['たいよう', 'あきら', 'あるま', 'いおり', 'しゅうご', 
-                                   'まほ', 'しづき', 'あさひ', 'しゅん', 'あつこ', 'りき'];
+                                   'まほ', 'しづき', 'あさひ', 'しゅん', 'あつこ', 'ぺんぎん'];
             const locked = allCharacters.filter(char => !gameState.unlockedCharacters.includes(char));
             return locked.length > 0 ? locked[Math.floor(Math.random() * locked.length)] : null;
         }
@@ -1712,7 +1777,7 @@ function getRandomCharacter() {
         setCharacterImage('あさひ', 'images/characters/asahi_small.png', 'images/characters/asahi_large.png');
         setCharacterImage('しゅん', 'images/characters/shun_small.png', 'images/characters/shun_large.png');
         setCharacterImage('あつこ', 'images/characters/atsuko_small.png', 'images/characters/atsuko_large.png');
-        setCharacterImage('りき', 'images/characters/riki_small.png', 'images/characters/riki_large.png');
+        setCharacterImage('ぺんぎん', 'images/characters/riki_small.png', 'images/characters/riki_large.png');
 		setCharacterImage('だいち', 'images/characters/daichi_small.png', 'images/characters/daichi_large.png');
         setEnemyImage('zombie', 'images/enemies/character_monster_zombie_02_green.png');
     </script>
