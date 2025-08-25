@@ -316,7 +316,70 @@
             transform: translateY(2px);
             box-shadow: 0 2px 0 #00a085;
         }
-        
+
+		/* タイトル画面用スタイル - 全画面対応 */
+#title-screen.active {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #0f0f23;
+}
+
+.title-image-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.title-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.title-start-button {
+    position: relative;
+    z-index: 10;
+    font-size: 14px;
+    padding: 20px 35px;
+    background: linear-gradient(45deg, #00d2d3, #54a0ff);
+    box-shadow: 0 8px 0 #2f3542;
+    border-radius: 8px;
+    text-shadow: 1px 1px 0px #000000;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}
+
+.title-start-button:hover {
+    transform: translateY(4px);
+    box-shadow: 0 4px 0 #2f3542;
+}
+
+.title-start-button:active {
+    transform: translateY(8px);
+    box-shadow: none;
+}
+
+/* スマホ対応 */
+@media (max-width: 600px) {
+    .title-start-button {
+        font-size: 12px;
+        padding: 15px 25px;
+    }
+}
+		
         .scroll-hint {
             font-size: 7px;
             color: #a4b0be;
@@ -336,6 +399,32 @@
                 padding: 10px;
                 border-width: 2px;
             }
+
+			/* タイトル画面では枠を非表示 */
+.game-container:has(#title-screen.active) {
+    background: transparent;
+    border: none;
+    padding: 0;
+    max-width: 100%;
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* 他の画面用のgame-container設定を復元 */
+.game-container:has(.screen.active:not(#title-screen)) {
+    background: #0f0f23;
+    border: 3px solid #00ff00;
+    padding: 15px;
+    max-width: 500px;
+    width: auto;
+    height: auto;
+    position: relative;
+}
             
             .title {
                 font-size: 14px;
@@ -364,12 +453,10 @@
     <div class="game-container">
         <!-- タイトル画面 -->
         <div id="title-screen" class="screen active">
-            <div class="title">🏰 ピクセル めいろゲーム 🏰</div>
-            <div style="margin: 20px 0; font-size: 10px; line-height: 1.4;">
-                めいろをクリアして<br>
-                つよい敵を倒そう！
+            <div class="title-image-container">
+                <img id="title-image" src="images/title/title_screen.png" alt="ピクセル めいろゲーム" class="title-image">
             </div>
-            <button class="button" onclick="showStageSelect()">ゲームスタート</button>
+            <button class="button title-start-button" onclick="showStageSelect()">ゲームスタート</button>
         </div>
         
         <!-- ステージ選択画面 -->
