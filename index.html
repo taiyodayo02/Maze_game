@@ -676,7 +676,9 @@
     'あるま': null,
     'しゅうご': null,
     'まほ': null,
-    'ぺんぎん': null
+    'ぺんぎん': null,
+    'いおり': null,
+    'だいち': null
 },
 characterSelect: {
     'たいよう': null,
@@ -684,7 +686,9 @@ characterSelect: {
     'あるま': null,
     'しゅうご': null,
     'まほ': null,
-    'ぺんぎん': null
+    'ぺんぎん': null,
+    'いおり': null,
+    'だいち': null
 },
             weapons: {
                 sword: null,
@@ -1499,7 +1503,7 @@ if (playerImagePath && loadedImages[playerImagePath]) {
         }
 	// 全キャラクターリスト
        const allCharacters = ['たいよう', 'あきら', 'あるま', 'しゅうご', 
-                       'まほ', 'ぺんぎん'];
+                       'まほ', 'ぺんぎん', 'いおり', 'だいち'];
 		
         // キャラクター表示用エモジ
         const characterEmojis = {
@@ -1508,7 +1512,9 @@ if (playerImagePath && loadedImages[playerImagePath]) {
     'あるま': '🌸',
     'しゅうご': '🌊',
     'まほ': '🌙',
-    'ぺんぎん': '🐧'
+    'ぺんぎん': '🐧',
+    'いおり': '🌺',
+    'だいち': '🌍'
 };
 
         // キャラクター選択画面のランダム表示
@@ -1616,7 +1622,7 @@ function getEnemyDrawSettings(enemyType, cellSize) {
 		
 function getRandomCharacter() {
     const allCharacters = ['たいよう', 'あきら', 'あるま', 'しゅうご', 
-                           'まほ', 'ぺんぎん'];
+                           'まほ', 'ぺんぎん', 'いおり', 'だいち'];
     const locked = allCharacters.filter(char => !gameState.unlockedCharacters.includes(char));
     return locked.length > 0 ? locked[Math.floor(Math.random() * locked.length)] : null;
 }
@@ -1875,6 +1881,8 @@ function getRandomCharacter() {
         setCharacterImage('まほ', 'images/characters/maho_small.png', 'images/characters/maho_large.png');
 		setCharacterImage('しゅうご', 'images/characters/shuugo_small.png', 'images/characters/shuugo_large.png');
         setCharacterImage('ぺんぎん', 'images/characters/riki_small.png', 'images/characters/riki_large.png');
+		setCharacterImage('いおり', 'images/characters/iori_small.png', 'images/characters/iori_large.png');
+		setCharacterImage('だいち', 'images/characters/daichi_small.png', 'images/characters/daichi_large.png');
         setEnemyImage('zombie', 'images/enemies/character_monster_zombie_02_green.png');
 		setEnemyImage('jackolantern', 'images/enemies/character_monster_jackolantern_orange.png');
 		setEnemyImage('hana', 'images/enemies/character_monster_hana_01.png');
