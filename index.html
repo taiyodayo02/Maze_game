@@ -1350,9 +1350,9 @@ movingEnemies.forEach((enemy, index) => {
            // ドアを描画（ゴール地点）
 if (gameImages.items.door && loadedImages[gameImages.items.door]) {
     // ドア画像を大きく表示し、上部にはみ出させる
-    const imageSize = cellSize * 2.0;
+    const imageSize = cellSize * 1.4;
     const offsetX = (cellSize - imageSize) / 2;
-    const offsetY = cellSize - imageSize - (cellSize * 0.3); // 大きく上にはみ出させる
+   const offsetY = cellSize - imageSize - (cellSize * 0.3);
     
     ctx.save();
     ctx.imageSmoothingEnabled = false;
