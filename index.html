@@ -692,14 +692,20 @@ characterSelect: {
                 staff: null
             },
             enemies: {
-                ghost: null,
-                zombie: null,
-                dragon: null
-            },
+    		ghost: null,
+    		zombie: null,
+   		 	jackolantern: null,
+    		hana: null,
+    		golem: null,
+    		skeleton: null,
+    		shinigami: null,
+    		dragon: null
+		},
             items: {
-                treasure: null,
-                friend: null
-            }
+    treasure: null,
+    friend: null,
+    door: null
+}
         };
 
         // 読み込み済み画像を保存するオブジェクト
@@ -1314,46 +1320,74 @@ characterSelect: {
                 }
             });
 
-            // 動く敵を描画
-            movingEnemies.forEach((enemy, index) => {
-                const enemyImagePath = gameImages.enemies.zombie;
-                if (enemyImagePath && loadedImages[enemyImagePath]) {
-                    ctx.drawImage(loadedImages[enemyImagePath], enemy.x * cellSize, enemy.y * cellSize, cellSize, cellSize);
-                } else {
-                    ctx.fillStyle = '#e84118';
-                    ctx.fillRect(enemy.x * cellSize + 2, enemy.y * cellSize + 2, cellSize - 4, cellSize - 4);
-                    
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = `${cellSize * 0.6}px monospace`;
-                    ctx.textAlign = 'center';
-                    ctx.fillText('👻', enemy.x * cellSize + cellSize/2, enemy.y * cellSize + cellSize/2 + 4);
-                }
-            });
+           // 動く敵を描画
+movingEnemies.forEach((enemy, index) => {
+    const enemyType = getEnemyTypeForStage(gameState.currentStage, index);
+    const enemyImagePath = gameImages.enemies[enemyType];
+    if (enemyImagePath && loadedImages[enemyImagePath]) {
+        // 敵タイプに応じた描画設定を取得
+        const settings = getEnemyDrawSettings(enemyType, cellSize);
+        
+        ctx.save();
+        ctx.imageSmoothingEnabled = false; // ピクセルアート用
+        ctx.drawImage(loadedImages[enemyImagePath], 
+            enemy.x * cellSize + settings.offsetX, 
+            enemy.y * cellSize + settings.offsetY, 
+            settings.width, 
+            settings.height);
+        ctx.restore();
+    } else {
+        ctx.fillStyle = '#e84118';
+        ctx.fillRect(enemy.x * cellSize + 2, enemy.y * cellSize + 2, cellSize - 4, cellSize - 4);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `${cellSize * 0.6}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText('👻', enemy.x * cellSize + cellSize/2, enemy.y * cellSize + cellSize/2 + 4);
+    }
+});
 
-            // 友達を描画（ゴール地点）
-            if (gameImages.items.friend && loadedImages[gameImages.items.friend]) {
-                ctx.drawImage(loadedImages[gameImages.items.friend], friend.x * cellSize, friend.y * cellSize, cellSize, cellSize);
-            } else {
-                ctx.fillStyle = '#00b894';
-                ctx.fillRect(friend.x * cellSize + 2, friend.y * cellSize + 2, cellSize - 4, cellSize - 4);
-                
-                ctx.fillStyle = '#ffffff';
-                ctx.font = `${cellSize * 0.6}px monospace`;
-                ctx.textAlign = 'center';
-                ctx.fillText('👥', friend.x * cellSize + cellSize/2, friend.y * cellSize + cellSize/2 + 4);
-            }
+           // ドアを描画（ゴール地点）
+if (gameImages.items.door && loadedImages[gameImages.items.door]) {
+    // ドア画像を大きく表示し、上部にはみ出させる
+    const imageSize = cellSize * 2.0;
+    const offsetX = (cellSize - imageSize) / 2;
+    const offsetY = cellSize - imageSize - (cellSize * 0.3); // 大きく上にはみ出させる
+    
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(loadedImages[gameImages.items.door], 
+        friend.x * cellSize + offsetX, 
+        friend.y * cellSize + offsetY, 
+        imageSize, 
+        imageSize);
+    ctx.restore();
+} else {
+    ctx.fillStyle = '#8b4513';
+    ctx.fillRect(friend.x * cellSize + 2, friend.y * cellSize + 2, cellSize - 4, cellSize - 4);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `${cellSize * 0.6}px monospace`;
+    ctx.textAlign = 'center';
+    ctx.fillText('🚪', friend.x * cellSize + cellSize/2, friend.y * cellSize + cellSize/2 + 4);
+}
 
            // プレイヤーを描画
 const playerImagePath = gameImages.characters[gameState.selectedCharacter];
 if (playerImagePath && loadedImages[playerImagePath]) {
-    // 画像のみを少し大きく表示
-    const imageSize = cellSize * 1.2;
-    const offset = (cellSize - imageSize) / 2;
+    // 画像を大きく表示し、縦横比を保持
+    const imageSize = cellSize * 1.5;
+    const offsetX = (cellSize - imageSize) / 2;
+    const offsetY = cellSize - imageSize + (cellSize * 0.1); // 少し上にずらす
+    
+    ctx.save();
+    ctx.imageSmoothingEnabled = false; // ピクセルアート用
     ctx.drawImage(loadedImages[playerImagePath], 
-        player.x * cellSize + offset, 
-        player.y * cellSize + offset, 
+        player.x * cellSize + offsetX, 
+        player.y * cellSize + offsetY, 
         imageSize, 
         imageSize);
+    ctx.restore();
 } else {
     drawDefaultPlayer(cellSize);
 }
@@ -1524,6 +1558,62 @@ if (playerImagePath && loadedImages[playerImagePath]) {
                 gameState.selectedCharacter = shuffledChars[0];
             }
         }
+		
+		// ステージごとの敵タイプを決定
+function getEnemyTypeForStage(stage, enemyIndex) {
+    switch(stage) {
+        case 1: return 'zombie';
+        case 2: return 'jackolantern';
+        case 3: return 'hana';
+        case 4: return 'golem';
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            const randomTypes = ['zombie', 'jackolantern', 'hana', 'golem'];
+            return randomTypes[enemyIndex % randomTypes.length];
+        case 10: return 'skeleton';
+        case 11: return 'shinigami';
+        case 12: return 'dragon';
+        default: return 'zombie';
+    }
+}
+
+// 敵タイプごとの描画設定を取得
+function getEnemyDrawSettings(enemyType, cellSize) {
+    switch(enemyType) {
+        case 'jackolantern':
+            return {
+                width: cellSize * 1.4,
+                height: cellSize * 1.6, // ジャックオーランタンは縦長に
+                offsetX: cellSize * -0.2,
+                offsetY: cellSize * -0.4
+            };
+        case 'dragon':
+            return {
+                width: cellSize * 1.6,
+                height: cellSize * 1.4,
+                offsetX: cellSize * -0.3,
+                offsetY: cellSize * -0.2
+            };
+        case 'hana':
+            return {
+                width: cellSize * 1.3,
+                height: cellSize * 1.5,
+                offsetX: cellSize * -0.15,
+                offsetY: cellSize * -0.3
+            };
+        default: // zombie, golem, skeleton, shinigami
+            return {
+                width: cellSize * 1.4,
+                height: cellSize * 1.4,
+                offsetX: cellSize * -0.2,
+                offsetY: cellSize * -0.2
+            };
+    }
+}
+		
 function getRandomCharacter() {
     const allCharacters = ['たいよう', 'あきら', 'あるま', 'しゅうご', 
                            'まほ', 'ぺんぎん'];
@@ -1777,6 +1867,7 @@ function getRandomCharacter() {
 
         // 画像を設定
         setItemImage('treasure', 'images/items/treasure_red_gold.png');
+		setItemImage('door', 'images/items/door_shitsunai_03.png');
         setCharacterImage('たいよう', 'images/characters/taiyou_small.png', 'images/characters/taiyou_large.png');
 		setCharacterImage('あきら', 'images/characters/akira_small.png', 'images/characters/akira_large.png');
         setCharacterImage('あるま', 'images/characters/aruma_small.png', 'images/characters/aruma_large.png');
@@ -1785,6 +1876,12 @@ function getRandomCharacter() {
 		setCharacterImage('しゅうご', 'images/characters/shuugo_small.png', 'images/characters/shuugo_large.png');
         setCharacterImage('ぺんぎん', 'images/characters/riki_small.png', 'images/characters/riki_large.png');
         setEnemyImage('zombie', 'images/enemies/character_monster_zombie_02_green.png');
+		setEnemyImage('jackolantern', 'images/enemies/character_monster_jackolantern_orange.png');
+		setEnemyImage('hana', 'images/enemies/character_monster_hana_01.png');
+		setEnemyImage('golem', 'images/enemies/character_monster_golem_gray.png');
+		setEnemyImage('skeleton', 'images/enemies/character_monster_skeleton_02.png');
+		setEnemyImage('shinigami', 'images/enemies/character_monster_shinigami_02.png');
+		setEnemyImage('dragon', 'images/enemies/character_monster_dragon_01_blue.png');
     </script>
 </body>
 </html>
